@@ -18,13 +18,20 @@ export class ProdutoService {
   ) {}
 
   async findAll(): Promise<Produto[]> {
-    return await this.produtoRepository.find();
+    return await this.produtoRepository.find({
+      relations: {
+        categoria: true,
+      },
+    });
   }
 
   async findById(id: number): Promise<Produto> {
     const produto = await this.produtoRepository.findOne({
       where: {
         id,
+      },
+      relations: {
+        categoria: true,
       },
     });
 
@@ -39,6 +46,9 @@ export class ProdutoService {
       where: {
         titulo: ILike(`%${titulo}%`),
       },
+      relations: {
+        categoria: true,
+      },
     });
 
     if (!produto)
@@ -52,6 +62,9 @@ export class ProdutoService {
       where: {
         preco: LessThanOrEqual(preco),
       },
+      relations: {
+        categoria: true,
+      },
     });
 
     if (!produto)
@@ -64,6 +77,9 @@ export class ProdutoService {
     const produto = await this.produtoRepository.find({
       where: {
         anoLancamento: LessThanOrEqual(ano),
+      },
+      relations: {
+        categoria: true,
       },
     });
 
