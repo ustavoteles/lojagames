@@ -53,7 +53,7 @@ export class ProdutoController {
     return this.produtoService.createProduto(produto);
   }
 
-  @Put('/:id')
+  @Put()
   @HttpCode(HttpStatus.OK)
   updateProduto(@Body() produto: Produto): Promise<Produto> {
     return this.produtoService.updateProduto(produto);

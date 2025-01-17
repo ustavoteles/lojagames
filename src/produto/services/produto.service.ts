@@ -9,22 +9,31 @@ import {
 } from 'typeorm';
 import { Produto } from '../entities/produto.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CategoriaService } from '../../categoria/services/categoria.service';
 
 @Injectable()
 export class ProdutoService {
   constructor(
     @InjectRepository(Produto)
     private produtoRepository: Repository<Produto>,
+    private categoriaService: CategoriaService,
   ) {}
 
   async findAll(): Promise<Produto[]> {
-    return await this.produtoRepository.find();
+    return await this.produtoRepository.find({
+      relations: {
+        categoria: true,
+      },
+    });
   }
 
   async findById(id: number): Promise<Produto> {
     const produto = await this.produtoRepository.findOne({
       where: {
         id,
+      },
+      relations: {
+        categoria: true,
       },
     });
 
@@ -39,6 +48,9 @@ export class ProdutoService {
       where: {
         titulo: ILike(`%${titulo}%`),
       },
+      relations: {
+        categoria: true,
+      },
     });
 
     if (!produto)
@@ -51,6 +63,9 @@ export class ProdutoService {
     const produto = await this.produtoRepository.find({
       where: {
         preco: LessThanOrEqual(preco),
+      },
+      relations: {
+        categoria: true,
       },
     });
 
@@ -65,6 +80,9 @@ export class ProdutoService {
       where: {
         anoLancamento: LessThanOrEqual(ano),
       },
+      relations: {
+        categoria: true,
+      },
     });
 
     if (!produto)
@@ -74,11 +92,15 @@ export class ProdutoService {
   }
 
   async createProduto(produto: Produto): Promise<Produto> {
+    await this.categoriaService.findById(produto.categoria.id);
+
     return await this.produtoRepository.save(produto);
   }
 
   async updateProduto(produto: Produto): Promise<Produto> {
     await this.findById(produto.id);
+
+    await this.categoriaService.findById(produto.categoria.id);
     return await this.produtoRepository.save(produto);
   }
 
